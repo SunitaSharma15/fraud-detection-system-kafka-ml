@@ -1,0 +1,42 @@
+# STS / Eclipse
+.metadata/
+.project
+.classpath
+.settings/
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+*.log
+logs/
+*.out
+*.err
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Build files
+*.class
+*.jar
+*.war
+
+# Environment
+.env
+
+# Spring Boot (protect secrets)
+application-*.yml
+application-*.properties
+!src/main/resources/application.yml
+
+# Docker (optional)
+docker-compose.override.yml
