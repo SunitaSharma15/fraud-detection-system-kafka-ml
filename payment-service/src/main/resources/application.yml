@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/frauddb
+    url: jdbc:postgresql://localhost:5432/frauddb?options=-c%20TimeZone=UTC
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -31,3 +31,6 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.sunita.frauddetection.payment: INFO  # service-level logging for audit
+    
+stripe:
+  api-key: ${STRIPE_API_KEY}    

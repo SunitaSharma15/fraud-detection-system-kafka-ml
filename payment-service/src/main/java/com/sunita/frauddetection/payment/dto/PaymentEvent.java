@@ -4,18 +4,31 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 public class PaymentEvent {
+
     private String transactionId;
     private String userId;
     private BigDecimal amount;
     private String status;
     private OffsetDateTime createdAt;
 
-    public PaymentEvent(String transactionId, String userId, BigDecimal amount, String status, OffsetDateTime createdAt) {
+    private String idempotencyKey;
+    private String stripePaymentIntentId;
+
+    public PaymentEvent(String transactionId,
+                        String userId,
+                        BigDecimal amount,
+                        String status,
+                        OffsetDateTime createdAt,
+                        String idempotencyKey,
+                        String stripePaymentIntentId) {
+
         this.transactionId = transactionId;
         this.userId = userId;
         this.amount = amount;
         this.status = status;
         this.createdAt = createdAt;
+        this.idempotencyKey = idempotencyKey;
+        this.stripePaymentIntentId = stripePaymentIntentId;
     }
 
 	public String getTransactionId() {
@@ -57,7 +70,22 @@ public class PaymentEvent {
 	public void setCreatedAt(OffsetDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
-    
 
-    // getters & setters
+	public String getIdempotencyKey() {
+		return idempotencyKey;
+	}
+
+	public void setIdempotencyKey(String idempotencyKey) {
+		this.idempotencyKey = idempotencyKey;
+	}
+
+	public String getStripePaymentIntentId() {
+		return stripePaymentIntentId;
+	}
+
+	public void setStripePaymentIntentId(String stripePaymentIntentId) {
+		this.stripePaymentIntentId = stripePaymentIntentId;
+	}
+
+   
 }

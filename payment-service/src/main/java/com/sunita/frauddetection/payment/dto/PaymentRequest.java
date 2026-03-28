@@ -4,7 +4,8 @@ package com.sunita.frauddetection.payment.dto;
 import java.math.BigDecimal;
 
 public class PaymentRequest {
-    private String transactionId;
+
+    private String idempotencyKey;
     private String userId;
     private BigDecimal amount;
     
@@ -12,19 +13,12 @@ public class PaymentRequest {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PaymentRequest(String transactionId, String userId, BigDecimal amount) {
-		super();
-		this.transactionId = transactionId;
-		this.userId = userId;
-		this.amount = amount;
+	public String getIdempotencyKey() {
+		return idempotencyKey;
 	}
 
-	public String getTransactionId() {
-		return transactionId;
-	}
-
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
+	public void setIdempotencyKey(String idempotencyKey) {
+		this.idempotencyKey = idempotencyKey;
 	}
 
 	public String getUserId() {
@@ -42,8 +36,6 @@ public class PaymentRequest {
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
-    
-    
 
-    // getters & setters
+   
 }

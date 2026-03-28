@@ -8,7 +8,8 @@ import java.time.ZoneOffset;
 @Entity
 @Table(
     name = "payments",
-    uniqueConstraints = @UniqueConstraint(columnNames = "transaction_id")
+    uniqueConstraints = @UniqueConstraint(columnNames = "transaction_id"),
+    indexes = @Index(name = "idx_txn_id", columnList = "transaction_id")
 )
 public class Payment {
 
@@ -28,12 +29,14 @@ public class Payment {
     @Column(nullable = false)
     private String status;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
 
-    // Constructor
+    @Column(name = "stripe_payment_intent_id")
+    private String stripePaymentIntentId;
+
     public Payment() {
-        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC); // Ensure UTC timestamp
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
 
     public Payment(String transactionId, String userId, BigDecimal amount, String status) {
@@ -41,25 +44,64 @@ public class Payment {
         this.userId = userId;
         this.amount = amount;
         this.status = status;
-        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC); // UTC timestamp for BFSI audit
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
 
-    // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+	public Long getId() {
+		return id;
+	}
 
-    public String getTransactionId() { return transactionId; }
-    public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+	public String getTransactionId() {
+		return transactionId;
+	}
 
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+	public String getUserId() {
+		return userId;
+	}
 
-    public OffsetDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public OffsetDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(OffsetDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getStripePaymentIntentId() {
+		return stripePaymentIntentId;
+	}
+
+	public void setStripePaymentIntentId(String stripePaymentIntentId) {
+		this.stripePaymentIntentId = stripePaymentIntentId;
+	}
+
+    
 }

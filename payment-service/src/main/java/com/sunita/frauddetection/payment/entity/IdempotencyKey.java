@@ -9,20 +9,24 @@ import java.time.ZoneOffset;
 public class IdempotencyKey {
 
     @Id
-    @Column(nullable = false, updatable = false)
-    private String id;  // typically the same as transactionId
+    private String id;
 
-    @Column(nullable = false)
+    private String transactionId;
+
     private OffsetDateTime processedAt;
 
     public IdempotencyKey() {
         this.processedAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
 
-    public IdempotencyKey(String id) {
+    public IdempotencyKey(String id, String transactionId) {
         this.id = id;
+        this.transactionId = transactionId;
         this.processedAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
+
+    // getters/setters
+
 
 	public String getId() {
 		return id;
@@ -39,8 +43,16 @@ public class IdempotencyKey {
 	public void setProcessedAt(OffsetDateTime processedAt) {
 		this.processedAt = processedAt;
 	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
     
     
 
-    // getters & setters
+   
 }
