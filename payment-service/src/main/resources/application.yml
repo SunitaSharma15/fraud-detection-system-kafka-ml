@@ -33,4 +33,5 @@ logging:
     com.sunita.frauddetection.payment: INFO  # service-level logging for audit
     
 stripe:
-  api-key: ${STRIPE_API_KEY}    
+  api-key: ${STRIPE_API_KEY}   
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}

@@ -1,10 +1,7 @@
 package com.sunita.frauddetection.payment.service;
 
-
-import com.stripe.Stripe;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -12,20 +9,27 @@ import java.math.BigDecimal;
 @Service
 public class StripeService {
 
-    @Value("${stripe.api-key}")
-    private String apiKey;
+	public PaymentIntent createPaymentIntent(BigDecimal amount) throws Exception {
 
-    public PaymentIntent createPaymentIntent(BigDecimal amount) throws Exception {
+	    long amountInPaise = amount.multiply(new BigDecimal("100")).longValue();
 
-        // initialize stripe
-        Stripe.apiKey = apiKey;
+	    PaymentIntentCreateParams params =
+	            PaymentIntentCreateParams.builder()
+	                    .setAmount(amountInPaise)
+	                    .setCurrency("inr")
 
-        PaymentIntentCreateParams params =
-                PaymentIntentCreateParams.builder()
-                        .setAmount(amount.multiply(new BigDecimal("100")).longValue()) // INR → paise
-                        .setCurrency("inr")
-                        .build();
+	                    // 🔥 IMPORTANT FIX
+	                    .setAutomaticPaymentMethods(
+	                            PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+	                                    .setEnabled(true)
+	                                    .setAllowRedirects(
+	                                            PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER
+	                                    )
+	                                    .build()
+	                    )
 
-        return PaymentIntent.create(params);
-    }
+	                    .build();
+
+	    return PaymentIntent.create(params);
+	}
 }

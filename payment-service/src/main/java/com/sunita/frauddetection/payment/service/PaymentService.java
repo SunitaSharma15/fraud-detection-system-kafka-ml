@@ -38,83 +38,64 @@ public class PaymentService {
         this.stripeService = stripeService;
     }
 
-    /**
-     * Production-grade payment processing
-     */
     @Transactional
     public PaymentEvent processPayment(PaymentRequest request) {
 
-        String idempotencyKey = request.getIdempotencyKey();
+        String key = request.getIdempotencyKey();
 
-        log.info("Processing payment request for idempotencyKey={}", idempotencyKey);
-
-        // 1️⃣ Idempotency check
-        Optional<IdempotencyKey> existing = idempotencyRepository.findById(idempotencyKey);
+        Optional<IdempotencyKey> existing = idempotencyRepository.findById(key);
 
         if (existing.isPresent()) {
-            log.info("Duplicate request detected for idempotencyKey={}", idempotencyKey);
-
-            Payment existingPayment = paymentRepository
+            Payment payment = paymentRepository
                     .findByTransactionId(existing.get().getTransactionId())
-                    .orElseThrow(() ->
-                            new IllegalStateException("Payment missing for existing idempotency key"));
+                    .orElseThrow();
 
-            return mapToEvent(existingPayment, idempotencyKey);
+            return mapToEvent(payment, key);
         }
 
         try {
-            // 2️⃣ Call Stripe (PaymentIntent)
-            var paymentIntent = stripeService.createPaymentIntent(request.getAmount());
+            var intent = stripeService.createPaymentIntent(request.getAmount());
 
-            // 3️⃣ Generate transactionId (server controlled)
-            String transactionId = UUID.randomUUID().toString();
+            String txnId = UUID.randomUUID().toString();
 
-            // 4️⃣ Persist payment
             Payment payment = new Payment(
-                    transactionId,
+                    txnId,
                     request.getUserId(),
                     request.getAmount(),
                     "CREATED"
             );
 
-            payment.setStripePaymentIntentId(paymentIntent.getId());
+            payment.setStripePaymentIntentId(intent.getId());
 
-            Payment savedPayment = paymentRepository.save(payment);
+            Payment saved = paymentRepository.save(payment);
 
-            log.info("Payment saved: txnId={}, stripeIntentId={}",
-                    transactionId, paymentIntent.getId());
+            idempotencyRepository.save(new IdempotencyKey(key, txnId));
 
-            // 5️⃣ Save idempotency mapping
-            idempotencyRepository.save(
-                    new IdempotencyKey(idempotencyKey, transactionId)
-            );
+            PaymentEvent event = mapToEvent(saved, key);
 
-            // 6️⃣ Publish Kafka event
-            PaymentEvent event = mapToEvent(savedPayment, idempotencyKey);
-
-            kafkaTemplate.send(PAYMENT_TOPIC, transactionId, event);
-
-            log.info("Kafka event published for txnId={}", transactionId);
+            kafkaTemplate.send(PAYMENT_TOPIC, txnId, event);
 
             return event;
 
         } catch (Exception e) {
-            log.error("Stripe payment failed for idempotencyKey={}", idempotencyKey, e);
             throw new RuntimeException("Stripe payment failed", e);
         }
     }
 
-    /**
-     * Map entity → Kafka event
-     */
-    private PaymentEvent mapToEvent(Payment payment, String idempotencyKey) {
+    // 🔥 NEW METHOD (CLEAN ARCHITECTURE)
+    public Payment getPaymentStatus(String transactionId) {
+        return paymentRepository.findByTransactionId(transactionId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+    }
+
+    private PaymentEvent mapToEvent(Payment payment, String key) {
         return new PaymentEvent(
                 payment.getTransactionId(),
                 payment.getUserId(),
                 payment.getAmount(),
                 payment.getStatus(),
                 payment.getCreatedAt(),
-                idempotencyKey,
+                key,
                 payment.getStripePaymentIntentId()
         );
     }

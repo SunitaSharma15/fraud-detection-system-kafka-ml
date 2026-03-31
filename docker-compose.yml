@@ -32,6 +32,9 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-# ✅ Declare named volumes
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
 volumes:
-  postgres_data:      
+  postgres_data:
+  kafka_data:

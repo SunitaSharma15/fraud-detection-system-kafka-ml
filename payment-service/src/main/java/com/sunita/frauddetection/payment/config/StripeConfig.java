@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 
 import jakarta.annotation.PostConstruct;
 
+import com.stripe.Stripe;
+
 @Configuration
 public class StripeConfig {
 
@@ -13,6 +15,6 @@ public class StripeConfig {
 
     @PostConstruct
     public void init() {
-        com.stripe.Stripe.apiKey = apiKey;
+        Stripe.apiKey = apiKey;
     }
 }
